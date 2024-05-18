@@ -26,8 +26,12 @@ therm1 = ax.imshow(np.zeros((240, 320)), interpolation='none', cmap='inferno')
 cbar = fig.colorbar(therm1)
 cbar.set_label('Temperature [C]')
 
+frame_counter = 0  # Counter to keep track of frames
+
+
 # Function to update the plot
 def update_fig(*args):
+    global frame_counter
     try:
         mlx.getFrame(frame)
     except ValueError:
@@ -38,8 +42,15 @@ def update_fig(*args):
     # Interpolate the data to 10x the original resolution
     data_interpolated = zoom(data, (10, 10), order=1)
     therm1.set_array(data_interpolated)
-    therm1.set_clim(vmin=np.min(data_interpolated), vmax=np.max(data_interpolated))  # Scale the colors to the min/max of the current frame
+    therm1.set_clim(vmin=np.min(data_interpolated),
+                    vmax=np.max(data_interpolated))  # Scale the colors to the min/max of the current frame
+
+    # Save the current frame as a JPG image
+    plt.savefig(f'frame_{frame_counter:04d}.jpg')
+    frame_counter += 1
+
     return therm1,
+
 
 # Create an animation
 ani = animation.FuncAnimation(fig, update_fig, interval=500)
