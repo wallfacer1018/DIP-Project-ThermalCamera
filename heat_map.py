@@ -20,7 +20,7 @@ frame = [0] * 768
 
 # Setup the plot
 fig, ax = plt.subplots()
-therm1 = ax.imshow(np.zeros((24, 32)), interpolation='none', cmap='gray', vmin=0, vmax=60)
+therm1 = ax.imshow(np.zeros((24, 32)), interpolation='none', cmap='inferno')
 cbar = fig.colorbar(therm1)
 cbar.set_label('Temperature [C]')
 
@@ -33,6 +33,7 @@ def update_fig(*args):
         return
     data = np.reshape(frame, (24, 32))
     therm1.set_array(data)
+    therm1.set_clim(vmin=np.min(data), vmax=np.max(data))  # Scale the colors to the min/max of the current frame
     return therm1,
 
 # Create an animation
