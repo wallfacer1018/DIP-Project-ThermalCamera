@@ -16,11 +16,11 @@ print([hex(i) for i in mlx.serial_number])
 mlx.refresh_rate = adafruit_mlx90640.RefreshRate.REFRESH_2_HZ
 
 # Create a frame buffer
-frame = np.zeros((24, 32))
+frame = [0] * 768
 
 # Setup the plot
 fig, ax = plt.subplots()
-therm1 = ax.imshow(frame, interpolation='none', cmap='gray', vmin=0, vmax=60)
+therm1 = ax.imshow(np.zeros((24, 32)), interpolation='none', cmap='gray', vmin=0, vmax=60)
 cbar = fig.colorbar(therm1)
 cbar.set_label('Temperature [C]')
 
@@ -31,7 +31,8 @@ def update_fig(*args):
     except ValueError:
         # Retry on ValueError
         return
-    therm1.set_array(frame)
+    data = np.reshape(frame, (24, 32))
+    therm1.set_array(data)
     return therm1,
 
 # Create an animation
