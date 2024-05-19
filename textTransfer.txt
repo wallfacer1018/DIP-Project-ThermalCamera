@@ -1,0 +1,26 @@
+# 更新系统
+sudo apt-get update
+sudo apt-get upgrade
+
+# 安装依赖库
+sudo apt-get install build-essential cmake git pkg-config
+sudo apt-get install libjpeg-dev libtiff-dev libpng-dev
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
+sudo apt-get install libxvidcore-dev libx264-dev
+sudo apt-get install libfontconfig1-dev libcairo2-dev
+sudo apt-get install libgdk-pixbuf2.0-dev libpango1.0-dev
+sudo apt-get install libgtk2.0-dev libgtk-3-dev
+sudo apt-get install libatlas-base-dev gfortran
+sudo apt-get install python3-dev
+
+# 安装pip和virtualenv
+sudo apt-get install python3-pip
+pip3 install virtualenv
+
+# 创建并激活虚拟环境（可选）
+virtualenv -p python3 env
+source env/bin/activate
+
+# 安装OpenCV
+pip install opencv-python
+pip install opencv-python-headless
