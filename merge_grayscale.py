@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from picamera2 import Picamera2
 from time import sleep
+from diptools import *
 import cv2
 
 # Initialize I2C bus and MLX90640 sensor
@@ -40,6 +41,7 @@ def capture_visible_image():
     picam2.capture_file('visible.jpg')
     image = cv2.imread('visible.jpg', cv2.IMREAD_GRAYSCALE)
     image_resized = cv2.resize(image, (240, 320))
+    image_resized = fisheye_correction.fisheye_correction(image_resized)
     return image_resized
 
 
@@ -49,7 +51,7 @@ def capture_thermal_image():
     except ValueError:
         return np.zeros((240, 320))
     thermal_data = np.reshape(frame, (24, 32))
-    thermal_image_resized = cv2.resize(thermal_data, (240, 320))
+    thermal_image_resized = cv2.resize(thermal_data, (240, 320), interpolation=cv2.INTER_CUBIC)
     return thermal_image_resized
 
 
@@ -60,7 +62,8 @@ def update_fig(*args):
     # Ensure both images are float type for addWeighted function
     visible_image = visible_image.astype(np.float32)
     thermal_image = thermal_image.astype(np.float32)
-    combined_image = visible_image*0.3+thermal_image*0.7
+    thermal_image = np.fliplr(thermal_image)
+    combined_image = merge_modes.merge_highpass(visible_image, thermal_image, 0.02, 30)
     therm1.set_array(combined_image)
     therm1.set_clim(vmin=np.min(combined_image), vmax=np.max(combined_image))
     return therm1,

@@ -6,5 +6,6 @@ __all__ = [
     'histogram',
     'sharpening',
     'frequency',
-    'fisheye_correction'
+    'fisheye_correction',
+    'merge_modes'
 ]
