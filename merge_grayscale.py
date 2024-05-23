@@ -60,7 +60,7 @@ def update_fig(*args):
     # Ensure both images are float type for addWeighted function
     visible_image = visible_image.astype(np.float32)
     thermal_image = thermal_image.astype(np.float32)
-    combined_image = cv2.addWeighted(visible_image, 0.5, thermal_image, 0.5, 0)
+    combined_image = visible_image*0.3+thermal_image*0.7
     therm1.set_array(combined_image)
     therm1.set_clim(vmin=np.min(combined_image), vmax=np.max(combined_image))
     return therm1,
