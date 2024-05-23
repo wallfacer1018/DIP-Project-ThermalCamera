@@ -1,6 +1,6 @@
 import cv2
-import frequency
-import regulator
+from . import frequency
+from . import regulator
 import numpy as np
 
 def merge_grayscale(img1, img2, ratio):
