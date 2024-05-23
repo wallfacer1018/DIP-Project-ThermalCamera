@@ -60,12 +60,10 @@ def update_fig(*args):
     visible_image = capture_visible_image()
     thermal_image = capture_thermal_image()
     # Ensure both images are float type for addWeighted function
-    visible_image = visible_image.astype(np.float32)
-    thermal_image = thermal_image.astype(np.float32)
     thermal_image = np.fliplr(thermal_image)
-    combined_image = merge_modes.merge_highpass(visible_image, thermal_image, 0.02, 30)
+    combined_image = merge_modes.merge_colored(visible_image, thermal_image, 0.2, 0.5)
     therm1.set_array(combined_image)
-    therm1.set_clim(vmin=np.min(combined_image), vmax=np.max(combined_image))
+    therm1.set_clim(vmin=np.min(thermal_image), vmax=np.max(thermal_image))
     return therm1,
 
 
