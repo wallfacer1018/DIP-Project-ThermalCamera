@@ -5,5 +5,6 @@ __all__ = [
     'spatial',
     'histogram',
     'sharpening',
-    'frequency'
+    'frequency',
+    'fisheye_correction'
 ]
