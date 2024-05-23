@@ -70,7 +70,7 @@ def merge_colored(img1, img2, ratio, threshold=0.5):
     img1_with_alpha = cv2.cvtColor(img1, cv2.COLOR_BGR2BGRA)
 
     # Resize images to the same size if they are not already
-    height, width, _ = img1.shape
+    height, width = img1.shape
     pseudo_color_resized = cv2.resize(pseudo_color, (width, height))
 
     # Merge images with the given ratio, considering alpha channel
