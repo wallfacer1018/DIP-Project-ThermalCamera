@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from picamera2 import Picamera2
 from time import sleep
-from diptools import *
 import cv2
 
 # Initialize I2C bus and MLX90640 sensor
@@ -30,30 +29,32 @@ sleep(2)
 frame = [0] * 768
 
 # Setup the plot
-fig, ax = plt.subplots()
-therm1 = ax.imshow(np.zeros((240, 320, 3), dtype=np.uint8), interpolation='none')
-cbar = fig.colorbar(therm1)
-cbar.set_label('Intensity')
+fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
+ax1.set_title('Visible Image')
+ax2.set_title('Thermal Image')
+ax3.set_title('Merged Image')
 
+therm1 = ax1.imshow(np.zeros((240, 320, 3), dtype=np.uint8))  # Ensure RGB format for initial image
+therm2 = ax2.imshow(np.zeros((240, 320), dtype=np.uint8), cmap='jet', vmin=0, vmax=255)  # Thermal image
+therm3 = ax3.imshow(np.zeros((240, 320, 3), dtype=np.uint8))  # Merged image
+
+cbar = fig.colorbar(therm2, ax=ax2)
+cbar.set_label('Intensity')
 
 def capture_visible_image():
     # Capture image and directly return it as an array
     picam2.capture_file('visible.jpg')
     image = cv2.imread('visible.jpg')
     image_resized = cv2.resize(image, (240, 320))
-    image_resized = fisheye_correction.fisheye_correction(image_resized)
     return image_resized
-
 
 def capture_thermal_image():
     try:
         mlx.getFrame(frame)
     except ValueError:
-        return np.zeros((240, 320))
+        return np.zeros((24, 32))
     thermal_data = np.reshape(frame, (24, 32))
-    thermal_image_resized = cv2.resize(thermal_data, (240, 320), interpolation=cv2.INTER_CUBIC)
-    return thermal_image_resized
-
+    return thermal_data
 
 def merge_colored(img1, img2, ratio, threshold=0.5):
     """
@@ -91,7 +92,7 @@ def merge_colored(img1, img2, ratio, threshold=0.5):
 
     # Resize images to the same size if they are not already
     height, width, _ = img1.shape
-    pseudo_color_resized = cv2.resize(pseudo_color, (width, height))
+    pseudo_color_resized = cv2.resize(pseudo_color, (width, height), interpolation=cv2.INTER_NEAREST)
 
     # Merge images with the given ratio, considering alpha channel
     merged_image = cv2.addWeighted(img1_with_alpha, ratio, pseudo_color_resized, 1 - ratio, 0)
@@ -101,18 +102,19 @@ def merge_colored(img1, img2, ratio, threshold=0.5):
 
     return merged_image
 
-
 # Function to update the plot
 def update_fig(*args):
     visible_image = capture_visible_image()
     thermal_image = capture_thermal_image()
-    # Ensure both images are float type for addWeighted function
-    thermal_image = np.fliplr(thermal_image)
-    combined_image = merge_colored(visible_image, thermal_image, 0.2, 0.5)
-    therm1.set_array(combined_image)
-    therm1.set_clim(vmin=np.min(thermal_image), vmax=np.max(thermal_image))
-    return therm1,
+    thermal_image_resized = cv2.resize(thermal_image, (240, 320), interpolation=cv2.INTER_CUBIC)
+    combined_image = merge_colored(visible_image, thermal_image_resized, 0.2, 0.5)
 
+    therm1.set_array(visible_image)
+    therm2.set_array(thermal_image_resized)
+    therm3.set_array(combined_image)
+
+    therm2.set_clim(vmin=np.min(thermal_image_resized), vmax=np.max(thermal_image_resized))
+    return therm1, therm2, therm3
 
 # Create an animation
 ani = animation.FuncAnimation(fig, update_fig, interval=500)
