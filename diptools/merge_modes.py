@@ -5,15 +5,16 @@ import numpy as np
 
 def merge_grayscale(img1, img2, ratio):
     # Convert images to grayscale
-    gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-    gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+    # gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+    # gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
     # Resize images to the same size if they are not already
     # height, width = gray1.shape
     # gray2 = cv2.resize(gray2, (width, height))
 
     # Merge images with the given ratio
-    merged_image = cv2.addWeighted(gray1, ratio, gray2, 1 - ratio, 0)
+    # merged_image = cv2.addWeighted(img1, ratio, img2, 1 - ratio, 0)
+    merged_image = img1*ratio + img2*(1-ratio)
 
     return merged_image
 

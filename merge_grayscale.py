@@ -58,10 +58,10 @@ def capture_visible_image():
         left = 0
         top = 0
         right = left + length
-        bottom = top + length * 3 / 4
+        bottom = int(top + length * 3 / 4)
         image = image[top:bottom, left:right]
 
-    image_resized = cv2.resize(image, (240, 320))
+    image_resized = cv2.resize(image, (320, 240))
     return image_resized
 
 

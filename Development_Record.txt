@@ -51,5 +51,8 @@ ssh -T git@github.com
 实现了在树莓派端两张图像的灰度融合，但是当使用动画去显示融合后的RGB图像时只有蓝色分量
 
 
+2024.5.24
+image_resized = cv2.resize(image, (320, 240), interpolation=cv2.INTER_CUBIC)使用cv库做插值目标大小是先长后宽...
+
 
 
