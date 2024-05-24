@@ -83,7 +83,7 @@ def update_fig(*args):
     thermal_normalized = regulator.GrayScalingRegulator(thermal_image)
     combined_image = merge_modes.merge_grayscale(visible_image, thermal_normalized, 0.5)
     therm1.set_array(combined_image)
-    therm1.set_clim(vmin=np.min(thermal_image), vmax=np.max(thermal_image))
+    therm1.set_clim(vmin=np.min(combined_image), vmax=np.max(combined_image))
     return therm1
 
 
