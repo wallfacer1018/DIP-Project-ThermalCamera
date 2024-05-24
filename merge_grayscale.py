@@ -71,7 +71,7 @@ def capture_thermal_image():
     except ValueError:
         return np.zeros((240, 320))
     thermal_data = np.reshape(frame, (24, 32))
-    thermal_image_resized = cv2.resize(thermal_data, (240, 320), interpolation=cv2.INTER_CUBIC)
+    thermal_image_resized = cv2.resize(thermal_data, (320, 240), interpolation=cv2.INTER_CUBIC)
     return thermal_image_resized
 
 
