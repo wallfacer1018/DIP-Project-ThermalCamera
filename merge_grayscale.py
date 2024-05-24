@@ -79,7 +79,6 @@ def capture_thermal_image():
 def update_fig(*args):
     visible_image = capture_visible_image()
     thermal_image = capture_thermal_image()
-    # Ensure both images are float type for addWeighted function
     thermal_image = np.fliplr(thermal_image)
     thermal_normalized = regulator.GrayScalingRegulator(thermal_image)
     combined_image = merge_modes.merge_grayscale(visible_image, thermal_normalized, 0.5)
