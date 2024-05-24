@@ -53,13 +53,13 @@ def capture_visible_image():
     if position_correction:
         image = image
     else:
-        width, height = image.size
+        width, height = image.shape
         length = 700
         left = 0
         top = 0
         right = left + length
         bottom = top + length * 3 / 4
-        image = image.crop((left, top, right, bottom))
+        image = image[top:bottom, left:right]
 
     image_resized = cv2.resize(image, (240, 320))
     return image_resized
