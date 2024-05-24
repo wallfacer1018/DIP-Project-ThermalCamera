@@ -48,13 +48,13 @@ def capture_visible_image():
     # Capture image and directly return it as an array
     picam2.capture_file('visible.jpg')
     image = cv2.imread('visible.jpg', cv2.IMREAD_GRAYSCALE)
-    image = fisheye_correction.fisheye_correction(image)
+    # image = fisheye_correction.fisheye_correction(image)
     # select certain area of the image
     if position_correction:
         image = image
     else:
         width, height = image.shape
-        length = 700
+        length = 1024
         left = 0
         top = 0
         right = left + length
