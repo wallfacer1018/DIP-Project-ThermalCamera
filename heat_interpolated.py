@@ -46,7 +46,7 @@ def update_fig(*args):
                     vmax=np.max(data_interpolated))  # Scale the colors to the min/max of the current frame
 
     # Save the current frame as a JPG image
-    plt.savefig(f'frame_{frame_counter:04d}.jpg')
+    # plt.savefig(f'frame_{frame_counter:04d}.jpg')
     frame_counter += 1
 
     return therm1,
