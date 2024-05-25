@@ -16,7 +16,7 @@ def merge_grayscale(img1, img2, ratio):
     # merged_image = cv2.addWeighted(img1, ratio, img2, 1 - ratio, 0)
     merged_image = img1*ratio + img2*(1-ratio)
 
-    return merged_image
+    return regulator.GrayScalingRegulator(merged_image)
 
 def merge_highpass(img1, img2, ratio, sigma):
     # Convert images to grayscale

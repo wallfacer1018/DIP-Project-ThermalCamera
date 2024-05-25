@@ -55,17 +55,7 @@ def capture_visible_image():
     picam2.capture_file('visible.jpg')
     image = cv2.imread('visible.jpg', cv2.IMREAD_GRAYSCALE)
     # image = fisheye_correction.fisheye_correction(image)
-    # select certain area of the image
-    width, height = image.shape
-    length = 1024
-    left = 0
-    top = 0
-    right = left + length
-    bottom = int(top + length * 3 / 4)
-    image = image[top:bottom, left:right]
-
-    image_resized = cv2.resize(image, (320, 240))
-    return image_resized
+    return image
 
 
 def capture_thermal_image():
@@ -83,7 +73,16 @@ def update_fig(*args):
     visible_image = capture_visible_image()
     thermal_image = capture_thermal_image()
     thermal_image = np.fliplr(thermal_image)
+    # persistence.save_gray('res_findleft/visible0.jpg', visible_image)
     thermal_normalized = regulator.GrayScalingRegulator(thermal_image)
+    # persistence.save_gray('res_findleft/thermal0.jpg', thermal_normalized)
+    length = 1024
+    left = 0
+    top = 0
+    right = left + length
+    bottom = int(top + length*3/4)
+    visible_image = visible_image[top:bottom, left:right]
+    visible_image = cv2.resize(visible_image, (320, 240), interpolation=cv2.INTER_CUBIC)
     combined_image = merge_modes.merge_grayscale(visible_image, thermal_normalized, 0.5)
     therm1.set_array(combined_image)
     therm1.set_clim(vmin=np.min(combined_image), vmax=np.max(combined_image))
