@@ -12,8 +12,7 @@ import cv2
 
 
 pseudo_color = True
-position_correction = False
-
+flip = False
 
 # Initialize I2C bus and MLX90640 sensor
 i2c = busio.I2C(board.SCL, board.SDA, frequency=800000)
@@ -36,10 +35,7 @@ frame = [0] * 768
 
 # Setup the plot
 fig, ax = plt.subplots()
-if pseudo_color:
-    therm1 = ax.imshow(np.zeros((240, 320)), interpolation='none', cmap='inferno')
-else:
-    therm1 = ax.imshow(np.zeros((240, 320)), interpolation='none', cmap='gray')
+therm1 = ax.imshow(np.zeros((240, 240)), interpolation='none', cmap='inferno')
 cbar = fig.colorbar(therm1)
 cbar.set_label('Intensity')
 
@@ -49,20 +45,7 @@ def capture_visible_image():
     picam2.capture_file('visible.jpg')
     image = cv2.imread('visible.jpg', cv2.IMREAD_GRAYSCALE)
     # image = fisheye_correction.fisheye_correction(image)
-    # select certain area of the image
-    if position_correction:
-        image = image
-    else:
-        width, height = image.shape
-        length = 1024
-        left = 0
-        top = 0
-        right = left + length
-        bottom = int(top + length * 3 / 4)
-        image = image[top:bottom, left:right]
-
-    image_resized = cv2.resize(image, (320, 240))
-    return image_resized
+    return image
 
 
 def capture_thermal_image():
@@ -74,14 +57,33 @@ def capture_thermal_image():
     thermal_image_resized = cv2.resize(thermal_data, (320, 240), interpolation=cv2.INTER_CUBIC)
     return thermal_image_resized
 
+# Function to find the proper left distance of the selected area of the visible image
+def find_left(visible, thermal):
+
+
+    return 0
+
 
 # Function to update the plot
 def update_fig(*args):
     visible_image = capture_visible_image()
     thermal_image = capture_thermal_image()
+
+    persistence.save_gray('res_findleft/visible0.jpg', visible_image)
+    persistence.save_gray('res_findleft/thermal0.jpg', thermal_image)
+
+    length = 768
+    left = find_left(visible_image, thermal_image)
+    top = 0
+    right = left + length
+    bottom = int(top + length)
+    visible_image = visible_image[top:bottom, left:right]
+
     thermal_image = np.fliplr(thermal_image)
     thermal_normalized = regulator.GrayScalingRegulator(thermal_image)
     combined_image = merge_modes.merge_grayscale(visible_image, thermal_normalized, 0.5)
+    if flip:
+        combined_image = np.fliplr(combined_image)
     therm1.set_array(combined_image)
     therm1.set_clim(vmin=np.min(combined_image), vmax=np.max(combined_image))
     return therm1
