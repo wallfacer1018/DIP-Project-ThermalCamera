@@ -64,7 +64,6 @@ def capture_thermal_image():
 # Function to find the proper left distance of the selected area of the visible image
 def find_left(visible, thermal, sigma_visible, sigma_thermal, scale):
     relation = np.zeros(250)
-    thermal = thermal[0:240, 60:300]
     thermal = cv2.resize(thermal, (int(240 * scale), int(240 * scale)), interpolation=cv2.INTER_CUBIC)
     thermal_highpass = gauss_highpass(thermal, sigma_thermal)
     for i in range(125, 225):
@@ -81,8 +80,10 @@ def update_fig(*args):
     visible_image = capture_visible_image()
     thermal_image = capture_thermal_image()
 
-    persistence.save_gray('res_findleft/visible0.jpg', visible_image)
-    persistence.save_gray('res_findleft/thermal0.jpg', thermal_image)
+    # persistence.save_gray('res_findleft/visible0.jpg', visible_image)
+    # persistence.save_gray('res_findleft/thermal0.jpg', thermal_image)
+
+    thermal_image = thermal_image[0:240, 60:300]
 
     length = 768
     left = find_left(visible_image, thermal_image, 30, 30, 0.3)
