@@ -13,6 +13,7 @@ import cv2
 
 pseudo_color = True
 flip = False
+merge_highpass = True
 
 # Initialize I2C bus and MLX90640 sensor
 i2c = busio.I2C(board.SCL, board.SDA, frequency=800000)
@@ -35,7 +36,10 @@ frame = [0] * 768
 
 # Setup the plot
 fig, ax = plt.subplots()
-therm1 = ax.imshow(np.zeros((240, 240)), interpolation='none', cmap='inferno')
+if pseudo_color:
+    therm1 = ax.imshow(np.zeros((240, 240)), interpolation='none', cmap='inferno')
+else:
+    therm1 = ax.imshow(np.zeros((240, 240)), interpolation='none', cmap='gray')
 cbar = fig.colorbar(therm1)
 cbar.set_label('Intensity')
 
@@ -58,10 +62,18 @@ def capture_thermal_image():
     return thermal_image_resized
 
 # Function to find the proper left distance of the selected area of the visible image
-def find_left(visible, thermal):
-
-
-    return 0
+def find_left(visible, thermal, sigma_visible, sigma_thermal, scale):
+    relation = np.zeros(250)
+    thermal = thermal[0:240, 60:300]
+    thermal = cv2.resize(thermal, (int(240 * scale), int(240 * scale)), interpolation=cv2.INTER_CUBIC)
+    thermal_highpass = gauss_highpass(thermal, sigma_thermal)
+    for i in range(125, 225):
+        visible_tmp = visible[0:768, i:i+768]
+        visible_tmp = cv2.resize(visible_tmp, (int(240*scale), int(240*scale)), interpolation=cv2.INTER_CUBIC)
+        visible_tmp_highpass = gauss_highpass(visible_tmp, sigma_visible)
+        relation[i] = np.sum(visible_tmp_highpass * thermal_highpass)
+    print(np.argmax(relation))
+    return np.argmax(relation)
 
 
 # Function to update the plot
@@ -73,12 +85,14 @@ def update_fig(*args):
     persistence.save_gray('res_findleft/thermal0.jpg', thermal_image)
 
     length = 768
-    left = find_left(visible_image, thermal_image)
+    left = find_left(visible_image, thermal_image, 30, 30, 0.3)
     top = 0
     right = left + length
     bottom = int(top + length)
     visible_image = visible_image[top:bottom, left:right]
-
+    visible_image = cv2.resize(visible_image, (240,240), interpolation=cv2.INTER_CUBIC)
+    if merge_highpass:
+        visible_image = gauss_highpass(visible_image, 10)
     thermal_image = np.fliplr(thermal_image)
     thermal_normalized = regulator.GrayScalingRegulator(thermal_image)
     combined_image = merge_modes.merge_grayscale(visible_image, thermal_normalized, 0.5)
@@ -88,6 +102,11 @@ def update_fig(*args):
     therm1.set_clim(vmin=np.min(combined_image), vmax=np.max(combined_image))
     return therm1
 
+def gauss_highpass(img, sigma):
+    H_p = frequency.H_gauss_LPF(img.shape, sigma, double_pad=True)
+    H_p = 1 - H_p
+    img_highpass = frequency.filter_freq_pad(img, H_p, is_H_padded=True, regulator=regulator.GrayCuttingRegulator)
+    return img_highpass
 
 # Create an animation
 ani = animation.FuncAnimation(fig, update_fig, interval=500)
