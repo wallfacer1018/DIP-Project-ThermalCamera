@@ -103,11 +103,13 @@ def update_fig(*args):
     therm1.set_clim(vmin=np.min(combined_image), vmax=np.max(combined_image))
     return therm1
 
+
 def gauss_highpass(img, sigma):
     H_p = frequency.H_gauss_LPF(img.shape, sigma, double_pad=True)
     H_p = 1 - H_p
     img_highpass = frequency.filter_freq_pad(img, H_p, is_H_padded=True, regulator=regulator.GrayCuttingRegulator)
     return img_highpass
+
 
 # Create an animation
 ani = animation.FuncAnimation(fig, update_fig, interval=500)
