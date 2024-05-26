@@ -79,7 +79,7 @@ def find_left(visible, thermal, sigma_visible, sigma_thermal, scale):
 def update_fig(*args):
     visible_image = capture_visible_image()
     thermal_image = capture_thermal_image()
-
+    thermal_image = np.fliplr(thermal_image)
     # persistence.save_gray('res_findleft/visible0.jpg', visible_image)
     # persistence.save_gray('res_findleft/thermal0.jpg', thermal_image)
 
@@ -94,7 +94,7 @@ def update_fig(*args):
     visible_image = cv2.resize(visible_image, (240,240), interpolation=cv2.INTER_CUBIC)
     if merge_highpass:
         visible_image = gauss_highpass(visible_image, 10)
-    thermal_image = np.fliplr(thermal_image)
+
     thermal_normalized = regulator.GrayScalingRegulator(thermal_image)
     combined_image = merge_modes.merge_grayscale(visible_image, thermal_normalized, 0.5)
     if flip:
