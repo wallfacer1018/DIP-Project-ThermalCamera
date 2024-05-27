@@ -147,8 +147,8 @@ def update_fig(*args):
     therm1.set_array(thermal_image_origin)
 
     therm1.set_clim(vmin=np.min(thermal_image), vmax=np.max(thermal_image))
-    img_combined.set_clim(vmin=np.min(img_combined), vmax=np.max(img_combined))
-    img_visible.set_clim(vmin=np.min(img_visible), vmax=np.max(img_visible))
+    img_combined.set_clim(vmin=np.min(combined_image), vmax=np.max(combined_image))
+    img_visible.set_clim(vmin=np.min(visible_image_origin), vmax=np.max(visible_image_origin))
     ax_relation.relim()
     ax_relation.autoscale_view()
     return img_visible, therm1, relation_line, img_combined
