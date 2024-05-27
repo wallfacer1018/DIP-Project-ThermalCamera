@@ -109,20 +109,20 @@ def calculate_ncc(reference_image, query_image):
 
 
 def update_fig(*args):
-    visible_image = capture_visible_image()
-    thermal_image = capture_thermal_image()
-    thermal_image = np.fliplr(thermal_image)
-    thermal_image = thermal_image[0:240, 60:300]
+    visible_image_origin = capture_visible_image()
+    thermal_image_origin = capture_thermal_image()
+    thermal_image_origin = np.fliplr(thermal_image_origin)
+    thermal_image = thermal_image_origin[0:240, 60:300]
 
     length = 768
-    left, relation = find_left(visible_image, thermal_image, 0.3)
+    left, relation = find_left(visible_image_origin, thermal_image, 0.3)
     top = 0
     right = left + length
     bottom = int(top + length)
-    visible_image = visible_image[top:bottom, left:right]
+    visible_image = visible_image_origin[top:bottom, left:right]
     visible_image = cv2.resize(visible_image, (240, 240), interpolation=cv2.INTER_CUBIC)
     if merge_highpass:
-        visible_image = gauss_highpass(visible_image, 10)
+        visible_image = gauss_highpass(visible_image, 50)
 
     thermal_normalized = regulator.GrayScalingRegulator(thermal_image)
     combined_image = merge_modes.merge_grayscale(visible_image, thermal_normalized, 0.5)
@@ -130,10 +130,10 @@ def update_fig(*args):
         combined_image = np.fliplr(combined_image)
 
     # Update plots
-    img_visible.set_array(visible_image)
+    img_visible.set_array(visible_image_origin)
     relation_line.set_data(np.arange(len(relation)), relation)
     img_combined.set_array(combined_image)
-    therm1.set_array(thermal_image)
+    therm1.set_array(thermal_image_origin)
 
     therm1.set_clim(vmin=np.min(thermal_image), vmax=np.max(thermal_image))
     ax_relation.relim()

@@ -80,11 +80,11 @@ def calculate_ncc(query_image, reference_image):
     return ncc_value
 
 
-visible_image = persistence.load_gray('res_findleft/visible0.jpg')
-thermal_image = persistence.load_gray('res_findleft/thermal0.jpg')
+visible_image = persistence.load_gray('res_findleft/visible3.jpg')
+thermal_image = persistence.load_gray('res_findleft/thermal3.jpg')
 
 length = 768
-left = find_left(visible_image, thermal_image, 30, 30, 1)
+left = find_left(visible_image, thermal_image, 30, 30, 0.2)
 top = 0
 right = left + length
 bottom = int(top + length)
