@@ -46,8 +46,8 @@ cbar.set_label('Intensity')
 
 # Initialize other plots
 img_visible = ax_visible.imshow(np.zeros((768, 1024)), cmap='gray')
-img_relation = ax_relation.imshow(np.zeros(250), cmap='viridis')
 img_combined = ax_combined.imshow(np.zeros((240, 240)), cmap='gray')
+relation_line = ax_relation.plot(np.zeros(250))
 
 ax_visible.set_title('Visible Image')
 ax_thermal.set_title('Thermal Image')
@@ -131,12 +131,14 @@ def update_fig(*args):
 
     # Update plots
     img_visible.set_array(visible_image)
-    img_relation.set_array(relation)
+    relation_line.set_ydata(relation)
     img_combined.set_array(combined_image)
     therm1.set_array(thermal_image)
 
     therm1.set_clim(vmin=np.min(thermal_image), vmax=np.max(thermal_image))
-    return img_visible, therm1, img_relation, img_combined
+    ax_relation.relim()
+    ax_relation.autoscale_view()
+    return img_visible, therm1, relation_line, img_combined
 
 
 def gauss_highpass(img, sigma):
