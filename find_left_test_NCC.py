@@ -1,0 +1,98 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from diptools import *
+import cv2
+
+# Function to find the proper left distance of the selected area of the visible image
+# 在物体比较远，几乎没有偏移的情况下，如res_findleft中的visible0.jpg、thermal0.jpg，合适的left值约为130
+# 在物体比较近，如res_findleft中的visible1.jpg、thermal1.jpg，合适的left值约为160
+def find_left(visible, thermal, sigma_visible, sigma_thermal, scale):
+    relation = np.ones(250)
+    relation = -relation*0.2
+    thermal = cv2.resize(thermal[0:240, 60:300], (int(240 * scale), int(240 * scale)), interpolation=cv2.INTER_CUBIC)
+    H_p = frequency.H_gauss_LPF(thermal.shape, int(sigma_thermal*scale), double_pad=True)
+    H_p = 1 - H_p
+    thermal_highpass = frequency.filter_freq_pad(thermal, H_p, is_H_padded=True, regulator=regulator.GrayCuttingRegulator)
+    for i in range(100, 170):
+        visible_tmp = visible[0:768, i:i+768]
+        visible_tmp = cv2.resize(visible_tmp, (int(240*scale), int(240*scale)), interpolation=cv2.INTER_CUBIC)
+        H_p = frequency.H_gauss_LPF(visible_tmp.shape, sigma_visible*scale, double_pad=True)
+        H_p = 1 - H_p
+        visible_tmp_highpass = frequency.filter_freq_pad(visible_tmp, H_p, is_H_padded=True, regulator=regulator.GrayCuttingRegulator)
+
+        # relation[i] = np.sum(visible_tmp_highpass * thermal_highpass)
+        # relation[i] = calculate_ncc(visible_tmp_highpass, thermal_highpass)
+        relation[i] = calculate_ncc(visible_tmp, thermal)
+    # 绘制数组值
+    plt.plot(relation, marker='o', linestyle='-', color='b', label='Array Values')
+
+    # 添加标题和标签
+    plt.title('Array Values Plot')
+    plt.xlabel('Index')
+    plt.ylabel('Value')
+
+    # 添加图例
+    plt.legend()
+
+    # 显示网格
+    plt.grid(True)
+
+    # 显示图像
+    plt.show()
+    print(np.argmax(relation))
+    return np.argmax(relation)
+
+
+def calculate_ncc(query_image, reference_image):
+    # Function to calculate the mean of an image or a region of an image
+    def calculate_mean(image):
+        return np.mean(image)
+
+    # Dimensions of the images
+    Ih, Iw = reference_image.shape
+    Qh, Qw = query_image.shape
+
+    # Mean of the query image
+    mu_query = calculate_mean(query_image)
+
+    # Extract the overlapping regions
+    reference_region = reference_image
+    query_region = query_image
+
+    # Calculate the mean of the reference region
+    mu_reference = calculate_mean(reference_region)
+
+    # Calculate the numerator of the NCC
+    numerator = np.sum((reference_region - mu_reference) * (query_region - mu_query))
+
+    # Calculate the denominator of the NCC
+    denominator = np.sqrt(
+        np.sum((reference_region - mu_reference) ** 2) *
+        np.sum((query_region - mu_query) ** 2)
+    )
+
+    # Calculate the NCC value for this displacement
+    if denominator != 0:
+        ncc_value = numerator / denominator
+    else:
+        ncc_value = 0
+
+    return ncc_value
+
+
+visible_image = persistence.load_gray('res_findleft/visible0.jpg')
+thermal_image = persistence.load_gray('res_findleft/thermal0.jpg')
+
+length = 768
+left = find_left(visible_image, thermal_image, 30, 30, 1)
+top = 0
+right = left + length
+bottom = int(top + length)
+visible_image = visible_image[top:bottom, left:right]
+
+visible_image = cv2.resize(visible_image, (240, 240), interpolation=cv2.INTER_CUBIC)
+thermal_normalized = regulator.GrayScalingRegulator(thermal_image)
+thermal_normalized = thermal_normalized[0:240, 60:300]
+combined_image = merge_modes.merge_grayscale(visible_image, thermal_normalized, 0.5)
+
+persistence.show(combined_image)
