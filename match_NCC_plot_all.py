@@ -69,7 +69,7 @@ def capture_thermal_image():
     while True:
         try:
             mlx.getFrame(frame)
-            print('got frame')
+            print('got thermal frame')
             break  # If getFrame is successful, exit the loop
         except ValueError:
             print('no input')
@@ -88,7 +88,7 @@ def find_left(visible, thermal, scale):
         visible_tmp = visible[0:768, i:i+768]
         visible_tmp = cv2.resize(visible_tmp, (int(240 * scale), int(240 * scale)), interpolation=cv2.INTER_CUBIC)
         relation[i] = calculate_ncc(visible_tmp, thermal_resized)
-    print(np.argmax(relation))
+    print('optimal left distance: {}'.format(np.argmax(relation)))
     return np.argmax(relation), relation
 
 
@@ -141,14 +141,14 @@ def update_fig(*args):
         combined_image = np.fliplr(combined_image)
 
     # Update plots
-    visible_image_origin = regulator.GrayScalingRegulator(visible_image_origin)
     img_visible.set_array(visible_image_origin)
     relation_line.set_data(np.arange(len(relation)), relation)
-    combined_image = regulator.GrayScalingRegulator(combined_image)
     img_combined.set_array(combined_image)
     therm1.set_array(thermal_image_origin)
 
     therm1.set_clim(vmin=np.min(thermal_image), vmax=np.max(thermal_image))
+    img_combined.set_clim(vmin=np.min(img_combined), vmax=np.max(img_combined))
+    img_visible.set_clim(vmin=np.min(img_visible), vmax=np.max(img_visible))
     ax_relation.relim()
     ax_relation.autoscale_view()
     return img_visible, therm1, relation_line, img_combined
