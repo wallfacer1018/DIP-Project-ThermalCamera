@@ -46,12 +46,12 @@ cbar2.set_label('Intensity')
 
 # Initialize other plots
 img_visible = ax_visible.imshow(np.zeros((768, 1024)), cmap='gray')
-cbar1 = fig.colorbar(img_visible, ax=ax_visible)
-cbar1.set_label('Intensity')
+# cbar1 = fig.colorbar(img_visible, ax=ax_visible)
+# cbar1.set_label('Intensity')
 img_combined = ax_combined.imshow(np.zeros((240, 240)), cmap='inferno')
-cbar4 = fig.colorbar(img_combined, ax=ax_combined)
-cbar4.set_label('Intensity')
-relation_line, = ax_relation.plot(np.zeros(250))
+# cbar4 = fig.colorbar(img_combined, ax=ax_combined)
+# cbar4.set_label('Intensity')
+relation_line, = ax_relation.plot(np.zeros(70))  # Plot only 70 points (169 - 100)
 
 ax_visible.set_title('Visible Image')
 ax_thermal.set_title('Thermal Image')
@@ -78,7 +78,6 @@ def capture_thermal_image():
     thermal_data = np.reshape(frame, (24, 32))
     thermal_image_resized = cv2.resize(thermal_data, (320, 240), interpolation=cv2.INTER_CUBIC)
     return thermal_image_resized
-
 
 
 def find_left(visible, thermal, scale):
@@ -142,7 +141,8 @@ def update_fig(*args):
 
     # Update plots
     img_visible.set_array(visible_image_origin)
-    relation_line.set_data(np.arange(len(relation)), relation)
+    # relation_line.set_data(np.arange(len(relation)), relation)
+    relation_line.set_data(np.arange(100, 170), relation[100:170])  # Update only the desired range
     img_combined.set_array(combined_image)
     therm1.set_array(thermal_image_origin)
 
