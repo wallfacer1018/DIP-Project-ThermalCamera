@@ -38,9 +38,9 @@ fig, axes = plt.subplots(2, 2, figsize=(10, 10))
 ax_visible, ax_thermal, ax_relation, ax_combined = axes.flatten()
 
 if pseudo_color:
-    therm1 = ax_thermal.imshow(np.zeros((240, 240)), interpolation='none', cmap='inferno')
+    therm1 = ax_thermal.imshow(np.zeros((240, 360)), interpolation='none', cmap='inferno')
 else:
-    therm1 = ax_thermal.imshow(np.zeros((240, 240)), interpolation='none', cmap='gray')
+    therm1 = ax_thermal.imshow(np.zeros((240, 360)), interpolation='none', cmap='gray')
 cbar2 = fig.colorbar(therm1, ax=ax_thermal)
 cbar2.set_label('Intensity')
 
@@ -48,7 +48,10 @@ cbar2.set_label('Intensity')
 img_visible = ax_visible.imshow(np.zeros((768, 1024)), cmap='gray')
 # cbar1 = fig.colorbar(img_visible, ax=ax_visible)
 # cbar1.set_label('Intensity')
-img_combined = ax_combined.imshow(np.zeros((240, 240)), cmap='inferno')
+if pseudo_color:
+    img_combined = ax_combined.imshow(np.zeros((240, 240)), cmap='inferno')
+else:
+    img_combined = ax_combined.imshow(np.zeros((240, 240)), cmap='inferno')
 # cbar4 = fig.colorbar(img_combined, ax=ax_combined)
 # cbar4.set_label('Intensity')
 relation_line, = ax_relation.plot(np.zeros(70))  # Plot only 70 points (169 - 100)
