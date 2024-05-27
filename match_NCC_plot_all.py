@@ -46,7 +46,7 @@ cbar.set_label('Intensity')
 
 # Initialize other plots
 img_visible = ax_visible.imshow(np.zeros((768, 1024)), cmap='gray')
-img_combined = ax_combined.imshow(np.zeros((240, 240)), cmap='gray')
+img_combined = ax_combined.imshow(np.zeros((240, 240)), cmap='inferno')
 relation_line, = ax_relation.plot(np.zeros(250))
 
 ax_visible.set_title('Visible Image')
@@ -130,8 +130,10 @@ def update_fig(*args):
         combined_image = np.fliplr(combined_image)
 
     # Update plots
+    visible_image_origin = regulator.GrayScalingRegulator(visible_image_origin)
     img_visible.set_array(visible_image_origin)
     relation_line.set_data(np.arange(len(relation)), relation)
+    combined_image = regulator.GrayScalingRegulator(combined_image)
     img_combined.set_array(combined_image)
     therm1.set_array(thermal_image_origin)
 
