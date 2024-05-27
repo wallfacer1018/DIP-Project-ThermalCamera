@@ -47,7 +47,7 @@ cbar.set_label('Intensity')
 # Initialize other plots
 img_visible = ax_visible.imshow(np.zeros((768, 1024)), cmap='gray')
 img_combined = ax_combined.imshow(np.zeros((240, 240)), cmap='gray')
-relation_line = ax_relation.plot(np.zeros(250))
+relation_line, = ax_relation.plot(np.zeros(250))
 
 ax_visible.set_title('Visible Image')
 ax_thermal.set_title('Thermal Image')
@@ -131,7 +131,7 @@ def update_fig(*args):
 
     # Update plots
     img_visible.set_array(visible_image)
-    relation_line.set_ydata(relation)
+    relation_line.set_data(np.arange(len(relation)), relation)
     img_combined.set_array(combined_image)
     therm1.set_array(thermal_image)
 
