@@ -41,12 +41,16 @@ if pseudo_color:
     therm1 = ax_thermal.imshow(np.zeros((240, 240)), interpolation='none', cmap='inferno')
 else:
     therm1 = ax_thermal.imshow(np.zeros((240, 240)), interpolation='none', cmap='gray')
-cbar = fig.colorbar(therm1, ax=ax_thermal)
-cbar.set_label('Intensity')
+cbar2 = fig.colorbar(therm1, ax=ax_thermal)
+cbar2.set_label('Intensity')
 
 # Initialize other plots
 img_visible = ax_visible.imshow(np.zeros((768, 1024)), cmap='gray')
+cbar1 = fig.colorbar(img_visible, ax=ax_visible)
+cbar1.set_label('Intensity')
 img_combined = ax_combined.imshow(np.zeros((240, 240)), cmap='inferno')
+cbar4 = fig.colorbar(img_combined, ax=ax_combined)
+cbar4.set_label('Intensity')
 relation_line, = ax_relation.plot(np.zeros(250))
 
 ax_visible.set_title('Visible Image')
@@ -62,13 +66,19 @@ def capture_visible_image():
 
 
 def capture_thermal_image():
-    try:
-        mlx.getFrame(frame)
-    except ValueError:
-        return np.zeros((240, 320))
+    while True:
+        try:
+            mlx.getFrame(frame)
+            print('got frame')
+            break  # If getFrame is successful, exit the loop
+        except ValueError:
+            print('no input')
+            time.sleep(0.1)  # Wait for 100 ms before trying again
+
     thermal_data = np.reshape(frame, (24, 32))
     thermal_image_resized = cv2.resize(thermal_data, (320, 240), interpolation=cv2.INTER_CUBIC)
     return thermal_image_resized
+
 
 
 def find_left(visible, thermal, scale):
@@ -109,8 +119,9 @@ def calculate_ncc(reference_image, query_image):
 
 
 def update_fig(*args):
-    visible_image_origin = capture_visible_image()
     thermal_image_origin = capture_thermal_image()
+    visible_image_origin = capture_visible_image()
+
     thermal_image_origin = np.fliplr(thermal_image_origin)
     thermal_image = thermal_image_origin[0:240, 60:300]
 
